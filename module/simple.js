@@ -9,13 +9,12 @@ import { SimpleItem } from "./item.js";              // Classe personnalisée po
 import { SimpleItemSheet } from "./item-sheet.js";   // Fiche personnalisée pour les objets
 import { SimpleActorSheet } from "./actor-sheet.js"; // Fiche personnalisée pour les acteurs
 import { SimpleNpcSheet } from "./npc-sheet.js";
-import { SimpleVehicle } from "./vehicle.js";
 import { SimpleVehicleSheet } from "./vehicle-sheet.js";
 import { preloadHandlebarsTemplates } from "./templates.js"; // Fonction pour précharger les templates Handlebars
 import { createimperatorMacro } from "./macro.js";   // Fonction pour créer des macros spécifiques
 import { SimpleToken, SimpleTokenDocument } from "./token.js"; // Classes personnalisées pour les tokens
 
-import { SimpleUnitSheet } from "./unit-sheet.js"
+import { SimpleUnitSheet } from "./unit-sheet.js";
 
 // Hook qui s'exécute une seule fois lors de l'initialisation du système
 Hooks.once("init", async function() {
@@ -35,12 +34,15 @@ Hooks.once("init", async function() {
   // Stockage de références spécifiques au système dans l'objet global game.imperator
   game.imperator = {
     SimpleActor,            // Référence à la classe SimpleActor
+    SimpleItem,
     createimperatorMacro    // Référence à la fonction de création de macro
   };
 
   // Définition des classes personnalisées pour les documents des acteurs, objets et tokens
-
-
+  CONFIG.Actor.documentClass = SimpleActor;
+  CONFIG.Item.documentClass = SimpleItem;
+  CONFIG.Token.objectClass = SimpleToken;
+  CONFIG.Token.documentClass = SimpleTokenDocument;
 
   Actors.unregisterSheet("core", ActorSheet); // Désenregistre la fiche d'acteur par défaut
 
@@ -64,7 +66,7 @@ Hooks.once("init", async function() {
     makeDefault: true,
   });
 
-    Actors.registerSheet("imperator", SimpleUnitSheet, {
+  Actors.registerSheet("imperator", SimpleUnitSheet, {
     types: ["unite"],
     makeDefault: true,
   });
@@ -74,8 +76,8 @@ Hooks.once("init", async function() {
   
 
 
-  Items.unregisterSheet("core", ItemSheet); // Désenregistrement de la fiche d'objet par défaut
-  Items.registerSheet("imperator", SimpleItemSheet, { makeDefault: true }); // Enregistrement de la fiche d'objet personnalisée comme défaut
+  Items.unregisterSheet("core", ItemSheet); // Désenregistre la fiche d'objet par défaut
+  Items.registerSheet("imperator", SimpleItemSheet, { makeDefault: true }); // Définit la fiche d'objet personnalisée par défaut
 
   // Enregistrement des paramètres système pour la macro shorthand (raccourci des macros)
   game.settings.register("imperator", "macroShorthand", {

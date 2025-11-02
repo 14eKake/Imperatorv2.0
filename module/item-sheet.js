@@ -22,10 +22,15 @@ export class SimpleItemSheet extends ItemSheet {
   /** @inheritdoc */
   async getData(options) {
     const context = await super.getData(options);
+    const baseData = context.data ?? {};
+    baseData.system ??= foundry.utils.duplicate(this.item.system ?? {});
+    baseData.img ??= this.item.img;
+    baseData.name ??= this.item.name;
+    context.data = baseData;
     EntitySheetHelper.getAttributeData(context.data);
-    context.systemData = context.data.system;
+    context.systemData = baseData.system;
     context.dtypes = ATTRIBUTE_TYPES;
-    context.descriptionHTML = await TextEditor.enrichHTML(context.systemData.description, {
+    context.descriptionHTML = await TextEditor.enrichHTML(context.systemData.description ?? "", {
       secrets: this.document.isOwner,
       async: true
     });

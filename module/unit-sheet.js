@@ -1,5 +1,4 @@
 import { ATTRIBUTE_TYPES } from "./constants.js";
-import { EntitySheetHelper } from "./helper.js";
 
 export class SimpleUnitSheet extends ActorSheet {
 
@@ -13,45 +12,44 @@ export class SimpleUnitSheet extends ActorSheet {
     });
   }
 
-    async getData(options) {
-    const ctx = await super.getData(options);
-
-    ctx.system = ctx.data.system;   // ← ajoute cette ligne
-    ctx.dtypes = ATTRIBUTE_TYPES;
-
-    return ctx;
-    }
-
+  async getData(options) {
+    const context = await super.getData(options);
+    const baseData = context.data ?? {};
+    baseData.system ??= foundry.utils.duplicate(this.actor.system ?? {});
+    baseData.img ??= this.actor.img;
+    baseData.name ??= this.actor.name;
+    context.data = baseData;
+    context.system = baseData.system;
+    context.dtypes = ATTRIBUTE_TYPES;
+    return context;
+  }
 
   activateListeners(html) {
     super.activateListeners(html);
-    // Tu peux ici gérer l’ajout/suppression de capacités par exemple :
     html.find(".add-capacity").click(this._onAddCapacity.bind(this));
     html.find(".delete-capacity").click(this._onDeleteCapacity.bind(this));
   }
 
   _onAddCapacity(event) {
     event.preventDefault();
-    const capacites = foundry.utils.duplicate(this.actor.system.unite.capacites || []);
+    const capacites = foundry.utils.duplicate(this.actor.system.unite?.capacites || []);
     capacites.push({ nom: "", description: "" });
     this.actor.update({ "system.unite.capacites": capacites });
   }
 
   _onDeleteCapacity(event) {
     event.preventDefault();
-    const index = parseInt(event.currentTarget.dataset.index);
-    const capacites = foundry.utils.duplicate(this.actor.system.unite.capacites || []);
-    if (index >= 0) {
-      capacites.splice(index, 1);
-      this.actor.update({ "system.unite.capacites": capacites });
-    }
+    const index = Number(event.currentTarget.dataset.index);
+    const capacites = foundry.utils.duplicate(this.actor.system.unite?.capacites || []);
+    if (!Number.isInteger(index) || index < 0) return;
+    capacites.splice(index, 1);
+    this.actor.update({ "system.unite.capacites": capacites });
   }
-_getSubmitData(updateData) {
-  const formData = super._getSubmitData(updateData);
-  const expanded = foundry.utils.expandObject(formData);
-  console.log("➡️ Données envoyées à update() :", expanded);
-  return expanded;
-}
 
-
+  _getSubmitData(updateData) {
+    const formData = super._getSubmitData(updateData);
+    const expanded = foundry.utils.expandObject(foundry.utils.duplicate(formData));
+    console.log("Données envoyées à update():", expanded);
+    return formData;
+  }
 }

@@ -16,11 +16,16 @@ export class SimpleVehicleSheet extends ActorSheet {
   
   async getData(options) {
     const context = await super.getData(options);
+    const baseData = context.data ?? {};
+    baseData.system ??= foundry.utils.duplicate(this.actor.system ?? {});
+    baseData.img ??= this.actor.img;
+    baseData.name ??= this.actor.name;
+    context.data = baseData;
     // Log complet des données du système pour le véhicule
-    console.log("Données système du véhicule :", context.data.system);
-    context.systemData = context.data.system;
+    console.log("Données système du véhicule :", baseData.system);
+    context.systemData = baseData.system;
     context.dtypes = ATTRIBUTE_TYPES;
-    context.descriptionHTML = await TextEditor.enrichHTML(context.systemData.description, {
+    context.descriptionHTML = await TextEditor.enrichHTML(context.systemData.description ?? "", {
       secrets: this.document.isOwner,
       async: true
     });

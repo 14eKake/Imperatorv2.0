@@ -23,8 +23,8 @@ export class SimpleActorSheet extends ActorSheet {
   /** 
    * Définit les options par défaut de la fiche d'acteur.
    * Fusionne les options par défaut de la classe parente avec celles spécifiques au système.
-   * @inheritdoc 
-   */$
+   * @inheritdoc
+   */
   static get defaultOptions() {
     console.log("Définition des options par défaut de SimpleActorSheet");
     return foundry.utils.mergeObject(super.defaultOptions, {
@@ -47,14 +47,18 @@ export class SimpleActorSheet extends ActorSheet {
     console.log("Appel de getData dans SimpleActorSheet");
     const context = await super.getData(options);
     console.log("Contexte de base récupéré :", context);
+    const baseData = context.data ?? {};
+    baseData.system ??= foundry.utils.duplicate(this.actor.system ?? {});
+    baseData.img ??= this.actor.img;
+    baseData.name ??= this.actor.name;
+    context.data = baseData;
     context.shorthand = !!game.settings.get("imperator", "macroShorthand");
-    context.systemData = context.data.system;
+    context.systemData = baseData.system;
     context.dtypes = ATTRIBUTE_TYPES;
-    context.biographyHTML = await TextEditor.enrichHTML(context.systemData.biography, {
+    context.biographyHTML = await TextEditor.enrichHTML(context.systemData.biography ?? "", {
       secrets: this.document.isOwner,
       async: true
     });
-    context.systemData = context.data.system;
     context.unite = context.systemData.unite || {};
 
     const skills = duplicate(this.actor.system.skills || {});
@@ -324,28 +328,6 @@ export class SimpleActorSheet extends ActorSheet {
     d.render(true);
   }
 
-  /**
-   * Réactive les écouteurs d'événements pour la fiche d'acteur.
-   * @inheritdoc
-   */
-  activateListeners(html) {
-    console.log("Réactivation des écouteurs dans activateListeners");
-    super.activateListeners(html);
-    if (!this.isEditable) return;
-    html.find(".item-control").click(this._onItemControl.bind(this));
-    html.find(".items .rollable").on("click", this._onItemRoll.bind(this));
-    html.find(".add-skill").click(this._onAddSkill.bind(this));
-    html.find(".attributes a.attribute-roll").each((i, a) => {
-      a.setAttribute("draggable", true);
-      a.addEventListener("dragstart", ev => {
-        let dragData = ev.currentTarget.dataset;
-        console.log("Début du drag dans activateListeners, données :", dragData);
-        ev.dataTransfer.setData("text/plain", JSON.stringify(dragData));
-      }, false);
-    });
-    html.find(".skill-name").click(this._onSkillRoll.bind(this));
-    console.log("Tous les écouteurs ont été réactivés.");
-  }
 }
 
 // Hook pour attacher des écouteurs aux boutons de réaction dans les messages de chat
