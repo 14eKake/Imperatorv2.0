@@ -1,0 +1,88 @@
+<form class="flexcol {{cssClass}} unit-sheet" autocomplete="off">
+
+  <!-- NAVIGATION -->
+  <nav class="sheet-tabs tabs" data-group="primary">
+    <a class="item active" data-tab="stats">📊 Statistiques</a>
+    <a class="item" data-tab="capacites">✨ Capacités</a>
+  </nav>
+
+  <!-- CORPS PRINCIPAL -->
+  <section class="sheet-body">
+
+    <!-- ONGLET STATISTIQUES -->
+    <div class="tab stats active" data-group="primary" data-tab="stats">
+
+      <!-- IMAGE + NOM/CATÉGORIE -->
+      <div class="unit-top">
+        <img class="profile-img" src="{{data.img}}" data-edit="img" title="{{data.name}}" />
+
+        <div class="unit-meta">
+          <input type="text" class="unit-name" name="name" value="{{data.name}}" placeholder="Nom de l’unité" />
+          <select class="unit-category" name="system.unite.categorie">
+            <option value="infanterie" {{#if (eq system.unite.categorie "infanterie")}}selected{{/if}}>⚔️ Infanterie</option>
+            <option value="cavalerie"  {{#if (eq system.unite.categorie "cavalerie")}}selected{{/if}}>🐎 Cavalerie</option>
+            <option value="archer"     {{#if (eq system.unite.categorie "archer")}}selected{{/if}}>🏹 Archer</option>
+            <option value="artillerie" {{#if (eq system.unite.categorie "artillerie")}}selected{{/if}}>🧨 Artillerie</option>
+            <option value="monstre"    {{#if (eq system.unite.categorie "monstre")}}selected{{/if}}>🐲 Monstre</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- STATS PRINCIPALES -->
+      <section class="main-stats">
+        <div class="stat"><label>⚔️ Attaque</label>
+          <input type="number" name="system.unite.attaque" value="{{default system.unite.attaque 0}}" min="0"/>
+        </div>
+        <div class="stat"><label>🛡️ Défense</label>
+          <input type="number" name="system.unite.defense" value="{{default system.unite.defense 0}}" min="0"/>
+        </div>
+        <div class="stat"><label>🏃 Déplacement</label>
+          <input type="number" name="system.unite.deplacement" value="{{default system.unite.deplacement 0}}" min="0"/>
+        </div>
+        <div class="stat"><label>🎯 Portée</label>
+          <input type="number" name="system.unite.portee" value="{{default system.unite.portee 0}}" min="0"/>
+        </div>
+        <div class="stat"><label>❤️ PV</label>
+          <div class="pv-bar">
+            <input type="number" name="system.unite.pv.value" value="{{default system.unite.pv.value 0}}" min="0" style="width: 4em;" />
+            /
+            <input type="number" name="system.unite.pv.max" value="{{default system.unite.pv.max 0}}" min="1" style="width: 4em;" />
+          </div>
+        </div>
+        <div class="stat"><label>📦 Munitions</label>
+          <div class="ammo-bar">
+            <input type="number" name="system.unite.munitions.value" value="{{default system.unite.munitions.value 0}}" min="0" style="width: 4em;" />
+            /
+            <input type="number" name="system.unite.munitions.max" value="{{default system.unite.munitions.max 0}}" min="0" style="width: 4em;" />
+          </div>
+        </div>
+        <div class="stat"><label>😫 Fatigue</label>
+          <input type="number" name="system.unite.fatigue" value="{{default system.unite.fatigue 0}}" min="0" max="100"/>
+        </div>
+        <div class="stat"><label>🧠 Moral</label>
+          <input type="number" name="system.unite.moral" value="{{default system.unite.moral 0}}" min="0" max="100"/>
+        </div>
+      </section>
+    </div>
+
+    <!-- ONGLET CAPACITÉS -->
+    <div class="tab capacites" data-group="primary" data-tab="capacites">
+      <ul class="capacity-list">
+        {{#each system.unite.capacites as |cap index|}}
+          <li class="capacity-item">
+            <header>
+              <input class="capacity-name" type="text" name="system.unite.capacites.{{index}}.nom" value="{{cap.nom}}" placeholder="Nom"/>
+              <button type="button" class="delete-capacity" data-index="{{index}}" title="Supprimer">🗑️</button>
+            </header>
+            <textarea class="capacity-desc" name="system.unite.capacites.{{index}}.description" placeholder="Description">{{cap.description}}</textarea>
+          </li>
+        {{/each}}
+        {{#unless system.unite.capacites.length}}
+          <p class="no-capacities">🔹 Aucune capacité pour le moment.</p>
+        {{/unless}}
+      </ul>
+      <button type="button" class="add-capacity">➕ Ajouter une capacité</button>
+    </div>
+
+  </section>
+</form>
