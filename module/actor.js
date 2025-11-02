@@ -47,10 +47,27 @@ prepareDerivedData() {
     data.unite.munitions.value = Math.clamped(data.unite.munitions.value, 0, data.unite.munitions.max);
   }
 
+  /* −− bloc “vehicle” −− */
+  if (this.type === "vehicle") {
+    data.health ??= { value: 20, min: 0, max: 20 };
+    data.attributes ??= {};
+
+    const vehicleType = Array.isArray(data.type) ? data.type[0] : data.type;
+    if (vehicleType === "artillerie") {
+      data.servants ??= 0;
+      data.reloadRounds ??= 2;
+    }
+
+    const { min = 0, max = data.health.max ?? 0 } = data.health;
+    data.health.value = Math.clamped(data.health.value ?? max, min, max);
+  }
+
   /* −− dérivés communs −− */
-  const corpus = data.characteristics?.corpus?.value || 1;
-  data.health.max   = 5 + 2 * corpus;
-  data.health.value = Math.clamped(data.health.value, 0, data.health.max);
+  if (this.type !== "vehicle" && data.health) {
+    const corpus = Number(data.characteristics?.corpus?.value ?? 1);
+    data.health.max = 5 + 2 * corpus;
+    data.health.value = Math.clamped(data.health.value ?? data.health.max, 0, data.health.max);
+  }
 
   EntitySheetHelper.clampResourceValues(data.attributes);
 
